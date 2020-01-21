@@ -245,6 +245,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
         return findViewHolderForLayoutPosition(position) as PlayableTarget
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun updatePlayerPriority() {
         playerQueueLock.acquire()
         playerQueue.clear()

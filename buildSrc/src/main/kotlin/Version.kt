@@ -8,5 +8,6 @@ object Version {
 
     const val gradlePlugin = "3.5.3"
     const val kotlin = "1.3.61"
+    const val mavenPlugin = "2.1"
 }
 

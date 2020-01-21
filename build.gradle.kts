@@ -11,14 +11,13 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:${Version.gradlePlugin}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Version.kotlin}")
-
+        classpath("com.github.dcendents:android-maven-gradle-plugin:${Version.mavenPlugin}")
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 allprojects {
-    apply(plugin = "maven-publish")
     repositories {
         google()
         jcenter()
