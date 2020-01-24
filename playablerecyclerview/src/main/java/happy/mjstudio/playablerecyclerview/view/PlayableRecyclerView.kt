@@ -5,11 +5,12 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import happy.mjstudio.playablerecyclerview.manager.PlayableManager
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.enum.TargetState
+import happy.mjstudio.playablerecyclerview.manager.PlayableManager
 import happy.mjstudio.playablerecyclerview.player.ExoPlayerPlayablePlayer
 import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
+import happy.mjstudio.playablerecyclerview.target.ExoPlayerPlayableTarget
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.util.attachSnapHelper
 import happy.mjstudio.playablerecyclerview.util.debugE
@@ -162,7 +163,14 @@ class PlayableRecyclerView @JvmOverloads constructor(
      * @return
      */
     private fun computeVisibleItemHeight(position: Int): Int? {
-        val child = findViewHolderForLayoutPosition(position)?.itemView ?: return null
+        /** Get ExoPlayer PlayerView or ViewHolder view itself */
+        val child = findViewHolderForLayoutPosition(position)?.let { vh ->
+            if (vh is ExoPlayerPlayableTarget)
+                vh.getPlayerView()
+            else
+                vh.itemView
+        } ?: return null
+
         val location = IntArray(2)
         child.getLocationInWindow(location)
 
@@ -278,8 +286,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
     companion object {
         private val TAG = PlayableRecyclerView::class.java.simpleName
 
-        private const val DEFAULT_PLAYER_COUNT = 0x02
-        private const val DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX = 0x01
+        private const val DEFAULT_PLAYER_COUNT = 0x05
+        private const val DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX = 0x05
     }
 
 }

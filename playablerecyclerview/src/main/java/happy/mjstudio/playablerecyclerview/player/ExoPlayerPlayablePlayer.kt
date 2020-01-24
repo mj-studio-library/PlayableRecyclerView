@@ -16,10 +16,6 @@ import happy.mjstudio.playablerecyclerview.target.ExoPlayerPlayableTarget
  */
 class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayableTarget> {
 
-    companion object {
-        private val TAG = ExoPlayerPlayablePlayer::class.java.simpleName
-    }
-
     override var latestUsedTimeMs: Long = System.currentTimeMillis()
     override var state = PlayerState.PAUSED
 
