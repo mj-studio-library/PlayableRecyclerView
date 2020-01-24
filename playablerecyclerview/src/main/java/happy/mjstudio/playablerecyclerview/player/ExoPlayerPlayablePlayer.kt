@@ -100,6 +100,7 @@ class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType, private val 
 
         lastHandledVideoUrl = videoUrl
 
+
         player.playWhenReady = true
     }
 
@@ -117,7 +118,11 @@ class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType, private val 
 
     override fun attach(oldTarget: PlayableTarget<*>?, target: PlayableTarget<*>) {
         super.attach(oldTarget, target)
-        PlayerView.switchTargetView(player, oldTarget?.getPlayableView() as? PlayerView, target.getPlayableView() as? PlayerView)
+        switchView(oldTarget?.getPlayableView() as? PlayerView, target.getPlayableView() as? PlayerView)
+    }
+
+    fun switchView(oldView: PlayerView?, view: PlayerView?) {
+        PlayerView.switchTargetView(player, oldView, view)
     }
 
     override fun detach() {

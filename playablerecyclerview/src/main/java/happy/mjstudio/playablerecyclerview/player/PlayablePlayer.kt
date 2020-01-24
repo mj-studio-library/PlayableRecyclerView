@@ -3,11 +3,12 @@ package happy.mjstudio.playablerecyclerview.player
 import androidx.annotation.CallSuper
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
+import java.io.Serializable
 
 /**
  * Created by mj on 20, January, 2020
  */
-interface PlayablePlayer {
+interface PlayablePlayer : Serializable {
 
     var target: PlayableTarget<*>?
 

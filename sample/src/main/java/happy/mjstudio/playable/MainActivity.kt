@@ -14,7 +14,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mBinding: ActivityMainBinding
 
     private val sampleThumbs = listOf(
-
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg",
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg",
@@ -25,10 +24,9 @@ class MainActivity : AppCompatActivity() {
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/Sintel.jpg",
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/SubaruOutbackOnStreetAndDirt.jpg",
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/TearsOfSteel.jpg"
-
     )
-    private val sampleVideos = listOf(
 
+    private val sampleVideos = listOf(
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
@@ -39,7 +37,6 @@ class MainActivity : AppCompatActivity() {
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.jpg",
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
         "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
-
     )
 
     private val sampleDatas = sampleVideos.indices.map {
@@ -61,10 +58,12 @@ class MainActivity : AppCompatActivity() {
             with(recyclerView) {
                 adapter = SampleAdapter { clickedPosition ->
 
+                    /** Switch Play/Pause state */
                     when (manager.getPlaygingState(clickedPosition)) {
                         PlayerState.PLAYING -> manager.pausePlayable(clickedPosition)
                         else -> manager.playPlayable(clickedPosition)
                     }
+
 
                 }.apply {
                     submitItems(sampleDatas)

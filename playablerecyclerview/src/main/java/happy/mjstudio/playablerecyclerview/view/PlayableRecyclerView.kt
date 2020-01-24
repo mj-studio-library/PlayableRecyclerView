@@ -55,13 +55,13 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
         override fun playPlayable(position: Int) = this@PlayableRecyclerView.playPlayable(position)
 
-
         override fun pausePlayable(position: Int) = this@PlayableRecyclerView.pausePlayable(position)
-
 
         override fun getPlaygingState(position: Int) = this@PlayableRecyclerView.getPlaygingState(position)
 
         override fun seekToPlayablePlayback(position: Int, ms: Long) = this@PlayableRecyclerView.seekToPlayablePlayback(position, ms)
+
+        override fun getPlayablePlayer(position: Int) = this@PlayableRecyclerView.getPlayablePlayer(position)
     }
 
     //endregion
@@ -293,6 +293,11 @@ class PlayableRecyclerView @JvmOverloads constructor(
         target.player?.seekTo(ms) ?: return false
 
         return true
+    }
+
+    private fun getPlayablePlayer(position: Int): PlayablePlayer? {
+        val target: PlayableTarget<*> = getPlayableTargetWithPosition(position) ?: return null
+        return target.player
     }
 
     private fun pauseInvisiblePlayers() {

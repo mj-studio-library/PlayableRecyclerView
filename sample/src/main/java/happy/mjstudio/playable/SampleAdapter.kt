@@ -39,6 +39,7 @@ class SampleAdapter(
         }
 
         fun bind(item: SamplePlayable) {
+            binding.playerView.transitionName = layoutPosition.toString()
             binding.playerView.setThumbnail(item.thumbnailUrl)
             binding.item = item
             binding.executePendingBindings()

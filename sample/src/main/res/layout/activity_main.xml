@@ -49,7 +49,7 @@
             app:playable_loop_type="loop"
             app:playable_pause_during_invisible="true"
             app:playable_player_concurrent_max="1"
-            app:playable_player_pool_count="2"
+            app:playable_player_pool_count="5"
             app:playable_type="EXOPLAYER"
             tools:listitem="@layout/item_playable" />
 

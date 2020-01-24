@@ -1,6 +1,7 @@
 package happy.mjstudio.playablerecyclerview.manager
 
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
+import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
 
 /**
  * Created by mj on 21, January, 2020
@@ -44,4 +45,9 @@ interface PlayableManager {
      * Seek playback of Playable in specific position
      */
     fun seekToPlayablePlayback(position: Int, ms: Long): Boolean
+
+    /**
+     * get [PlayablePlayer] in specific position
+     */
+    fun getPlayablePlayer(position: Int): PlayablePlayer?
 }
