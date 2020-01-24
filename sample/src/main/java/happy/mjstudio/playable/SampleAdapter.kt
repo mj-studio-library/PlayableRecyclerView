@@ -3,7 +3,6 @@ package happy.mjstudio.playable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import happy.mjstudio.playable.databinding.ItemPlayableBinding
-import happy.mjstudio.playablerecyclerview.model.Playable
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.view.PlayableAdapter
 import happy.mjstudio.playablerecyclerview.view.PlayableView
@@ -15,7 +14,7 @@ class SampleAdapter(
     private val onItemClick: (Int) -> Unit
 ) : PlayableAdapter<SampleAdapter.SampleHolder>() {
 
-    fun submitItems(items: List<Playable>) {
+    fun submitItems(items: List<SamplePlayable>) {
         submitList(items)
     }
 
@@ -27,7 +26,7 @@ class SampleAdapter(
     }
 
     override fun onBindViewHolder(holder: SampleHolder, position: Int) {
-        holder.bind(currentList[position])
+        holder.bind(currentList[position] as SamplePlayable)
     }
 
     inner class SampleHolder(private val binding: ItemPlayableBinding) : PlayableTarget(binding.root) {
@@ -38,9 +37,9 @@ class SampleAdapter(
             }
         }
 
-        fun bind(item: Playable) {
+        fun bind(item: SamplePlayable) {
             binding.playerView.setThumbnail((item as? SamplePlayable)?.thumbnailUrl)
-            binding.item = item as SamplePlayable
+            binding.item = item
             binding.executePendingBindings()
         }
 
@@ -58,6 +57,14 @@ class SampleAdapter(
         }
 
         override fun onHideLoading() {
+        }
+
+        override fun getVideoUrl(): String {
+            return (currentList[layoutPosition] as SamplePlayable).videoUrl
+        }
+
+        override fun getThumbnailUrl(): String? {
+            return (currentList[layoutPosition] as SamplePlayable).thumbnailUrl
         }
     }
 }

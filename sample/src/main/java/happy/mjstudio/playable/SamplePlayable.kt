@@ -1,7 +1,6 @@
 package happy.mjstudio.playable
 
 import android.os.Parcelable
-import happy.mjstudio.playablerecyclerview.model.Playable
 import kotlinx.android.parcel.Parcelize
 
 /**
@@ -9,8 +8,8 @@ import kotlinx.android.parcel.Parcelize
  */
 @Parcelize
 data class SamplePlayable(
-    override val videoUrl: String,
-    override val thumbnailUrl: String? = null,
+    val videoUrl: String,
+    val thumbnailUrl: String? = null,
     val profileImageUrl: String = "https://avatars3.githubusercontent.com/u/33388801?s=460&v=4",
     val title: String = listOf(
         "It is very functional day",
@@ -31,4 +30,4 @@ data class SamplePlayable(
         "This is MJStargram's description. It need to be long but we can't",
         "Who want this library"
     ).random()
-) : Parcelable, Playable
+) : Parcelable

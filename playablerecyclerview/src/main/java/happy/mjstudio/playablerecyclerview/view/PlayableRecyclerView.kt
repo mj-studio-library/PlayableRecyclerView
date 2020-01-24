@@ -15,7 +15,6 @@ import happy.mjstudio.playablerecyclerview.enum.PlayableType
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.enum.TargetState
 import happy.mjstudio.playablerecyclerview.manager.PlayableManager
-import happy.mjstudio.playablerecyclerview.model.Playable
 import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.util.attachSnapHelper
@@ -183,7 +182,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
     }
 
     /**
-     * Returns the visible size of the [Playable] surface on the screen.
+     * Returns the visible size of the Playable surface on the screen.
      * @param childPosition position for item in LayoutManager
      */
     private fun computePlayerVisibleSize(childPosition: Int) =
@@ -252,14 +251,11 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
         val candidatePosition = position ?: firstCandidatePosition
 
-        val adapter = (adapter as? PlayableAdapter<*>) ?: return false
-        val playable = adapter.currentList.getOrNull(candidatePosition) ?: return false
-
         val target: PlayableTarget = getPlayableTargetWithPosition(candidatePosition) ?: return false
 
         when (target.state) {
             TargetState.ATTACHED -> {
-                target.player?.play(playable) ?: return false
+                target.player?.play(target.getVideoUrl()) ?: return false
             }
             TargetState.DETACHED -> {
                 val newPlayer = dequeueOldestPlayer()
@@ -267,7 +263,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
                 newPlayer.detach()
 
                 newPlayer.attach(oldTarget, target)
-                newPlayer.play(playable)
+                newPlayer.play(target.getVideoUrl())
             }
         }
 

@@ -11,7 +11,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:background="#111"
+            android:background="#222"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
@@ -56,7 +56,7 @@
         <View
             android:id="@+id/shadow"
             android:layout_width="match_parent"
-            android:layout_height="8dp"
+            android:layout_height="6dp"
             android:alpha="0"
             android:background="@drawable/toolbar_shadow"
             android:stateListAnimator="@animator/shadow_selector_animator"

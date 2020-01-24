@@ -9,7 +9,6 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import happy.mjstudio.playablerecyclerview.enum.LoopType
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
-import happy.mjstudio.playablerecyclerview.model.Playable
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 
 /**
@@ -85,21 +84,21 @@ class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType) : PlayablePl
     }
 
     @Suppress("ControlFlowWithEmptyBody")
-    override fun play(playable: Playable) {
-        super.play(playable)
+    override fun play(videoUrl: String) {
+        super.play(videoUrl)
 
         //Resume Track
-        if (playable.videoUrl == lastHandledVideoUrl) {
+        if (videoUrl == lastHandledVideoUrl) {
             //Do Noting
         }
         //Change Track
         else {
-            val mediaSource = dataSourceFactory.createMediaSource(playable.videoUrl.toUri())
+            val mediaSource = dataSourceFactory.createMediaSource(videoUrl.toUri())
             player.prepare(mediaSource)
             player.seekTo(0L)
         }
 
-        lastHandledVideoUrl = playable.videoUrl
+        lastHandledVideoUrl = videoUrl
 
         player.playWhenReady = true
     }

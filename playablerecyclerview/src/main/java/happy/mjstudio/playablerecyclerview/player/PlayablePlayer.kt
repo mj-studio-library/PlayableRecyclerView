@@ -2,7 +2,6 @@ package happy.mjstudio.playablerecyclerview.player
 
 import androidx.annotation.CallSuper
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
-import happy.mjstudio.playablerecyclerview.model.Playable
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 
 /**
@@ -29,7 +28,7 @@ interface PlayablePlayer {
     val state: PlayerState get() = _state
 
     @CallSuper
-    fun play(playable: Playable) {
+    fun play(videoUrl: String) {
         _state = PlayerState.PLAYING
         updateUsedTime()
     }

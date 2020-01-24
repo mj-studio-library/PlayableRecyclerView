@@ -60,4 +60,7 @@ abstract class PlayableTarget(view: View) : RecyclerView.ViewHolder(view) {
     abstract fun onHideThumbnail()
     abstract fun onShowLoading()
     abstract fun onHideLoading()
+
+    abstract fun getVideoUrl(): String
+    abstract fun getThumbnailUrl(): String?
 }
