@@ -210,6 +210,9 @@ Limitations
 Changelog
 ---------
 
+* **1.0-alpha04**
+    * Update Proguard
+
 * **1.0-alpha03**
     * Pre release
 
