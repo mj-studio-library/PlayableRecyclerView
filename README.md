@@ -2,8 +2,6 @@ PlayableRecyclerView
 [![](https://jitpack.io/v/mym0404/PlayableRecyclerView.svg)](https://jitpack.io/#mym0404/PlayableRecyclerView)
 ===============
 
-* Play your video in ```RecyclerView``` without **OutOfMemory**
-
 * A fast, robust, extensible ```RecyclerView``` library for showing your Video. 
 
 * Recycle ```Player``` internally for memory issue. You can set ```Player pool count``` manually. The default value is ```2```
@@ -19,6 +17,10 @@ PlayableRecyclerView
 * Pause ```Playable``` when ```PlayableTarget``` is completely hidden on the screen.
 
 <image src="https://github.com/mym0404/PlayableRecyclerView/blob/master/Sample.gif" width=300/>
+
+* Play your video in ```RecyclerView``` without **OutOfMemory**
+
+<image src="https://github.com/mym0404/PlayableRecyclerView/blob/master/Sample2.gif" width=500/>
 
 
 Install(Gradle)
