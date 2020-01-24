@@ -5,4 +5,5 @@ package happy.mjstudio.playablerecyclerview.model
  */
 interface Playable {
     val videoUrl: String
+    val thumbnailUrl: String?
 }

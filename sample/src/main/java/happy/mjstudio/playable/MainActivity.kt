@@ -11,39 +11,39 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mBinding: ActivityMainBinding
 
     private val sampleDatas = listOf(
-        CommonPlayable(
+        SamplePlayable(
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_c_choreography.mp4",
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_c_choreography.png"
         ),
-        CommonPlayable(
+        SamplePlayable(
             "https://cdn.staging.beatflo.co/video/1579496605382_merged.mp4_1579496619388.mp4",
             "https://cdn.staging.beatflo.co/video/thumbnail.jpg_1579496619819.mp4"
         ),
-        CommonPlayable(
+        SamplePlayable(
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_b_choreography.mp4",
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_b_choreography.png"
         ),
-        CommonPlayable(
+        SamplePlayable(
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_c_choreography.mp4",
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_c_choreography.png"
         ),
-        CommonPlayable(
+        SamplePlayable(
             "https://cdn.staging.beatflo.co/video/1579496605382_merged.mp4_1579496619388.mp4",
             "https://cdn.staging.beatflo.co/video/thumbnail.jpg_1579496619819.mp4"
         ),
-        CommonPlayable(
+        SamplePlayable(
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_b_choreography.mp4",
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_b_choreography.png"
         ),
-        CommonPlayable(
+        SamplePlayable(
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_c_choreography.mp4",
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_c_choreography.png"
         ),
-        CommonPlayable(
+        SamplePlayable(
             "https://cdn.staging.beatflo.co/video/1579496605382_merged.mp4_1579496619388.mp4",
             "https://cdn.staging.beatflo.co/video/thumbnail.jpg_1579496619819.mp4"
         ),
-        CommonPlayable(
+        SamplePlayable(
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_b_choreography.mp4",
             "https://cdn.staging.beatflo.co/video/trippin_budy_part_b_choreography.png"
         )

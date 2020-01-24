@@ -8,7 +8,7 @@ import kotlinx.android.parcel.Parcelize
  * Created by mj on 21, January, 2020
  */
 @Parcelize
-data class CommonPlayable(
+data class SamplePlayable(
     override val videoUrl: String,
-    val thumbnailUrl: String? = null
+    override val thumbnailUrl: String? = null
 ) : Parcelable, Playable

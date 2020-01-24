@@ -43,7 +43,8 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer {
                     when (playbackState) {
 
                         Player.STATE_BUFFERING -> {
-                            target?.showLoading()
+                            if (state == PlayerState.PLAYING)
+                                target?.showLoading()
                         }
 
                         Player.STATE_READY -> {

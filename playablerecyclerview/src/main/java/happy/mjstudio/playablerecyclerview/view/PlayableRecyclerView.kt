@@ -110,6 +110,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
                 it.getInteger(R.styleable.PlayableRecyclerView_playable_player_concurrent_max, DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX)
         }
 
+
         if (isPageSnapping)
             attachSnapHelper()
 
@@ -202,12 +203,12 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
             val playersSortedOldest = playerPool.sortedBy { it.latestUsedTimeMs }
 
-            playersSortedOldest.forEach {
+            playersSortedOldest.forEach { player ->
 
                 if (pauseCountLatch == 0) return@forEach
 
-                if (it.state == PlayerState.PLAYING) {
-                    it.pause()
+                if (player.state == PlayerState.PLAYING) {
+                    player.pause()
                     pauseCountLatch -= 1
                 }
             }
@@ -223,11 +224,9 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
         when (target.state) {
             TargetState.ATTACHED -> {
-                debugE(TAG, "ATTACHED")
                 target.player?.play(playable)
             }
             TargetState.DETACHED -> {
-                debugE(TAG, "DETACHED")
                 val newPlayer = dequeueOldestPlayer()
                 val oldTarget = newPlayer.target
                 newPlayer.detach()

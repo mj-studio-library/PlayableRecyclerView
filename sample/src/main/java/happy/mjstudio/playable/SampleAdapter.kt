@@ -31,7 +31,7 @@ class SampleAdapter : PlayableAdapter<SampleAdapter.SampleHolder>() {
     inner class SampleHolder(private val binding: ItemPlayableBinding) : PlayableTarget(binding.root) {
 
         fun bind(item: Playable) {
-            binding.playerView.setThumbnail((item as? CommonPlayable)?.thumbnailUrl)
+            binding.playerView.setThumbnail((item as? SamplePlayable)?.thumbnailUrl)
         }
 
         override fun getPlayableView(): PlayableView {
