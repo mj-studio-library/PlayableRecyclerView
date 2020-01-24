@@ -13,9 +13,10 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#222">
+        android:background="@drawable/background_white_ripple">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profileImage"
@@ -29,6 +30,7 @@
             tools:src="@tools:sample/avatars[5]" />
 
         <TextView
+            app:fontFamily="@font/nanum_extrabold"
             android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -42,7 +44,6 @@
             android:text="@{item.title}"
             android:textColor="#fff"
             android:textSize="14sp"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/profileImage"
             app:layout_constraintTop_toTopOf="@id/profileImage"
@@ -65,6 +66,20 @@
             tools:text="Gimpo"
             tools:ignore="SmallSp" />
 
+        <TextView
+            android:alpha="0.7"
+            android:text="2020.01.24"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/date"
+            android:layout_width="0dp"
+            android:textColor="#fff"
+            android:textSize="10sp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/profileImage"
+            tools:ignore="HardcodedText,SmallSp" />
+
 
         <happy.mjstudio.playablerecyclerview.view.ExoPlayerPlayableView
             app:layout_constraintTop_toBottomOf="@id/profileImage"
@@ -85,7 +100,7 @@
             android:layout_marginEnd="12dp"
             android:text="@{item.description}"
             android:textColor="#fff"
-            android:textSize="16sp"
+            android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/playerView"
             app:layout_constraintStart_toStartOf="parent"
