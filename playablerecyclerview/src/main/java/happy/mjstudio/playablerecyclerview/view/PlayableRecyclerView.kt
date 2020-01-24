@@ -1,6 +1,7 @@
 package happy.mjstudio.playablerecyclerview.view
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import happy.mjstudio.playablerecyclerview.R
 import happy.mjstudio.playablerecyclerview.common.VisibleSize
+import happy.mjstudio.playablerecyclerview.enum.LoopType
 import happy.mjstudio.playablerecyclerview.enum.PlayableType
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.enum.TargetState
@@ -17,10 +19,10 @@ import happy.mjstudio.playablerecyclerview.model.Playable
 import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.util.attachSnapHelper
-import happy.mjstudio.playablerecyclerview.util.debugE
 import java.util.*
 import java.util.concurrent.Semaphore
 import kotlin.math.abs
+import kotlin.math.max
 
 
 /**
@@ -35,7 +37,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
     //region Manager
 
     val manager: PlayableManager = object : PlayableManager {
-        override fun pauseAllPlayable() {
+        override fun pauseAllPlayables() {
             playerPool.forEach { player ->
                 if (player.state == PlayerState.PLAYING) {
                     player.pause()
@@ -44,13 +46,23 @@ class PlayableRecyclerView @JvmOverloads constructor(
         }
 
         override fun resumeCurrentPlayable() {
-            playNewCandidate()
+            playPlayable()
         }
 
         override fun updatePlayables() {
-            pauseAllPlayable()
+            pauseAllPlayables()
             resumeCurrentPlayable()
         }
+
+        override fun playPlayable(position: Int) = this@PlayableRecyclerView.playPlayable(position)
+
+
+        override fun pausePlayable(position: Int) = this@PlayableRecyclerView.pausePlayable(position)
+
+
+        override fun getPlaygingState(position: Int) = this@PlayableRecyclerView.getPlaygingState(position)
+
+        override fun seekToPlayablePlayback(position: Int, ms: Long) = this@PlayableRecyclerView.seekToPlayablePlayback(position, ms)
     }
 
     //endregion
@@ -58,6 +70,11 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     //region Variable
 
+    /**
+     * Engine Type of [PlayableRecyclerView]
+     *
+     * default implementation with ExoPlayer
+     */
     private var playableType: PlayableType = DEFAULT_PLAYABLE_TYPE
 
     /**
@@ -73,6 +90,12 @@ class PlayableRecyclerView @JvmOverloads constructor(
      * default = 2
      */
     private var playerPoolCount = DEFAULT_PLAYER_POOL_COUNT
+
+    private var isAutoPlay = DEFAULT_AUTOPLAY
+
+    private var loopType = DEFAULT_LOOP_TYPE
+
+    private var isPauseDuringInvisible = DEFAULT_PAUSE_DURING_INVISIBLE
 
     /**
      * List of [PlayablePlayer] used for playback in List
@@ -108,8 +131,13 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
             videoPlayingConcurrentMax =
                 it.getInteger(R.styleable.PlayableRecyclerView_playable_player_concurrent_max, DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX)
-        }
 
+            isAutoPlay = it.getBoolean(R.styleable.PlayableRecyclerView_playable_autoplay, DEFAULT_AUTOPLAY)
+
+            loopType = LoopType.parse(it.getInteger(R.styleable.PlayableRecyclerView_playable_loop_type, DEFAULT_LOOP_TYPE.rawValue))
+
+            isPauseDuringInvisible = it.getBoolean(R.styleable.PlayableRecyclerView_playable_pause_during_invisible, DEFAULT_PAUSE_DURING_INVISIBLE)
+        }
 
         if (isPageSnapping)
             attachSnapHelper()
@@ -117,7 +145,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
         observeScrollEvent()
     }
 
-    private fun generatePlayer(): PlayablePlayer = playableType.generatePlayer(context)
+    private fun generatePlayer(): PlayablePlayer = playableType.generatePlayer(context.applicationContext as Application, loopType)
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -139,15 +167,17 @@ class PlayableRecyclerView @JvmOverloads constructor(
         addOnScrollListener(object : OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
 
+                if (isPauseDuringInvisible) {
+                    pauseInvisiblePlayers()
+                }
+
                 val newCandidatePosition = computeFirstCandidatePosition()
-
                 if (firstCandidatePosition == newCandidatePosition) return
-
                 firstCandidatePosition = newCandidatePosition
 
-                debugE(TAG, "new candidate : $firstCandidatePosition")
-
-                playNewCandidate()
+                if (isAutoPlay) {
+                    playPlayable()
+                }
             }
         })
     }
@@ -156,8 +186,12 @@ class PlayableRecyclerView @JvmOverloads constructor(
      * Returns the visible size of the [Playable] surface on the screen.
      * @param childPosition position for item in LayoutManager
      */
-    private fun computeVisibleItemSize(childPosition: Int): VisibleSize? {
-        val playableView = (findViewHolderForLayoutPosition(childPosition) as? PlayableTarget)?.getPlayableView() as? View ?: return null
+    private fun computePlayerVisibleSize(childPosition: Int) =
+        computePlayerVisibleSize((findViewHolderForLayoutPosition(childPosition) as? PlayableTarget)?.getPlayableView())
+
+    @Suppress("NAME_SHADOWING")
+    private fun computePlayerVisibleSize(playableView: PlayableView?): VisibleSize? {
+        val playableView = playableView as? View ?: return null
 
         val playableWidth = playableView.width
         val playableHeight = playableView.height
@@ -174,8 +208,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
         val clippedWidth = (if (startX < 0) abs(startX) else 0) + (if (endX > screenWidth) endX - screenWidth else 0)
         val clippedHeight = (if (startY < 0) abs(startY) else 0) + (if (endY > screenHeight) endY - screenHeight else 0)
 
-        val visibleWidth = endX - startX - clippedWidth
-        val visibleHeight = endY - startY - clippedHeight
+        val visibleWidth = max(0, endX - startX - clippedWidth)
+        val visibleHeight = max(0, endY - startY - clippedHeight)
 
         return visibleWidth * visibleHeight
     }
@@ -187,13 +221,13 @@ class PlayableRecyclerView @JvmOverloads constructor(
         val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
 
         return (firstVisiblePosition..lastVisiblePosition).maxBy {
-            computeVisibleItemSize(it) ?: 0
+            computePlayerVisibleSize(it) ?: 0
         } ?: firstVisiblePosition
     }
 
     //endregion
 
-    //region Play/Pause Video
+    //region Manager Playable State
 
     private fun getCurrentPlayingVideoCount() = playerPool.count { it.state == PlayerState.PLAYING }
 
@@ -204,7 +238,6 @@ class PlayableRecyclerView @JvmOverloads constructor(
             val playersSortedOldest = playerPool.sortedBy { it.latestUsedTimeMs }
 
             playersSortedOldest.forEach { player ->
-
                 if (pauseCountLatch == 0) return@forEach
 
                 if (player.state == PlayerState.PLAYING) {
@@ -215,16 +248,18 @@ class PlayableRecyclerView @JvmOverloads constructor(
         }
     }
 
-    private fun playNewCandidate() {
+    private fun playPlayable(position: Int? = null): Boolean {
 
-        val adapter = (adapter as? PlayableAdapter<*>) ?: return
-        val playable = adapter.currentList.getOrNull(firstCandidatePosition) ?: return
+        val candidatePosition = position ?: firstCandidatePosition
 
-        val target: PlayableTarget = getPlayableTargetWithPosition(firstCandidatePosition) ?: return
+        val adapter = (adapter as? PlayableAdapter<*>) ?: return false
+        val playable = adapter.currentList.getOrNull(candidatePosition) ?: return false
+
+        val target: PlayableTarget = getPlayableTargetWithPosition(candidatePosition) ?: return false
 
         when (target.state) {
             TargetState.ATTACHED -> {
-                target.player?.play(playable)
+                target.player?.play(playable) ?: return false
             }
             TargetState.DETACHED -> {
                 val newPlayer = dequeueOldestPlayer()
@@ -237,6 +272,33 @@ class PlayableRecyclerView @JvmOverloads constructor(
         }
 
         pauseOldPlayers()
+        return true
+    }
+
+    private fun pausePlayable(position: Int): Boolean {
+        val target: PlayableTarget = getPlayableTargetWithPosition(position) ?: return false
+        target.player?.pause() ?: return false
+
+        return true
+    }
+
+    private fun getPlaygingState(position: Int): PlayerState? {
+        val target: PlayableTarget = getPlayableTargetWithPosition(position) ?: return null
+        return target.player?.state
+    }
+
+    private fun seekToPlayablePlayback(position: Int, ms: Long): Boolean {
+        val target: PlayableTarget = getPlayableTargetWithPosition(position) ?: return false
+        target.player?.seekTo(ms) ?: return false
+
+        return true
+    }
+
+    private fun pauseInvisiblePlayers() {
+        playerPool.forEach { player ->
+            if ((computePlayerVisibleSize(player.target?.getPlayableView()) ?: 0) <= 0)
+                player.pause()
+        }
     }
 
     //endregion
@@ -266,11 +328,12 @@ class PlayableRecyclerView @JvmOverloads constructor(
     //endregion
 
     companion object {
-        private val TAG = PlayableRecyclerView::class.java.simpleName
-
         private val DEFAULT_PLAYABLE_TYPE = PlayableType.EXOPLAYER
         private const val DEFAULT_PLAYER_POOL_COUNT = 0x02
         private const val DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX = 0x01
+        private const val DEFAULT_AUTOPLAY = false
+        private val DEFAULT_LOOP_TYPE = LoopType.NONE
+        private const val DEFAULT_PAUSE_DURING_INVISIBLE = true
     }
 
 }

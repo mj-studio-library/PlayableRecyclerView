@@ -11,7 +11,9 @@ import happy.mjstudio.playablerecyclerview.view.PlayableView
 /**
  * Created by mj on 21, January, 2020
  */
-class SampleAdapter : PlayableAdapter<SampleAdapter.SampleHolder>() {
+class SampleAdapter(
+    private val onItemClick: (Int) -> Unit
+) : PlayableAdapter<SampleAdapter.SampleHolder>() {
 
     fun submitItems(items: List<Playable>) {
         submitList(items)
@@ -30,8 +32,16 @@ class SampleAdapter : PlayableAdapter<SampleAdapter.SampleHolder>() {
 
     inner class SampleHolder(private val binding: ItemPlayableBinding) : PlayableTarget(binding.root) {
 
+        init {
+            binding.root.setOnClickListener {
+                onItemClick(layoutPosition)
+            }
+        }
+
         fun bind(item: Playable) {
             binding.playerView.setThumbnail((item as? SamplePlayable)?.thumbnailUrl)
+            binding.item = item as SamplePlayable
+            binding.executePendingBindings()
         }
 
         override fun getPlayableView(): PlayableView {

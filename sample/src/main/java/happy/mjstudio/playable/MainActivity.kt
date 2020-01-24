@@ -1,10 +1,13 @@
 package happy.mjstudio.playable
 
-import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
 import happy.mjstudio.playable.databinding.ActivityMainBinding
+import happy.mjstudio.playablerecyclerview.enum.PlayerState
 
 class MainActivity : AppCompatActivity() {
 
@@ -62,15 +65,34 @@ class MainActivity : AppCompatActivity() {
     private fun initView() {
         mBinding.apply {
             with(recyclerView) {
-                adapter = SampleAdapter().apply {
+                adapter = SampleAdapter { clickedPosition ->
+
+                    when (manager.getPlaygingState(clickedPosition)) {
+                        PlayerState.PLAYING -> manager.pausePlayable(clickedPosition)
+                        else -> manager.playPlayable(clickedPosition)
+                    }
+
+                }.apply {
                     submitItems(sampleDatas)
                 }
+
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        mBinding.shadow.isActivated = recyclerView.canScrollVertically(-1)
+                    }
+                })
+
+                addItemDecoration(object : RecyclerView.ItemDecoration() {
+                    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                        val position = parent.getChildLayoutPosition(view)
+                        if (position > 0)
+                            outRect.top = 48
+                    }
+                })
             }
 
-            with(open) {
-                setOnClickListener {
-                    startActivity(Intent(this@MainActivity, MainActivity::class.java))
-                }
+            with(title) {
+                text = "𝐸𝓃𝒿𝑜𝓎 𝒫𝓁𝒶𝓎𝒶𝒷𝓁𝑒𝑅𝑒𝒸𝓎𝒸𝓁𝑒𝓇𝒱𝒾𝑒𝓌 - 𝑀𝒥𝒮𝓉𝓊𝒹𝒾𝑜"
             }
         }
     }
@@ -82,7 +104,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        mBinding.recyclerView.manager.pauseAllPlayable()
+        mBinding.recyclerView.manager.pauseAllPlayables()
     }
 
 }

@@ -32,3 +32,8 @@ fun View.setVisibilityBinding(isVisible: Boolean) {
 fun View.setSelectedBinding(isSelected: Boolean) {
     this.isSelected = isSelected
 }
+
+@BindingAdapter("app:activated_binding")
+fun View.setActivatedBinding(isActivated: Boolean) {
+    this.isActivated = isActivated
+}

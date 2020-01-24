@@ -25,17 +25,22 @@ interface PlayablePlayer {
     }
 
     val latestUsedTimeMs: Long
-    val state: PlayerState
+    var _state: PlayerState
+    val state: PlayerState get() = _state
 
     @CallSuper
     fun play(playable: Playable) {
+        _state = PlayerState.PLAYING
         updateUsedTime()
     }
 
     @CallSuper
     fun pause() {
+        _state = PlayerState.PAUSED
         target?.hideLoading()
     }
+
+    fun seekTo(ms: Long)
 
     fun release()
 

@@ -38,7 +38,7 @@ android {
 
 dependencies {
     implementation(project(":playablerecyclerview"))
-//    implementation("com.github.mym0404:PlayableRecyclerView:0.1.3")
+//    implementation("com.github.mym0404:PlayableRecyclerView:1.0-alpha01-20200124")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
     implementation("io.reactivex.rxjava2:rxjava:2.2.17")
 

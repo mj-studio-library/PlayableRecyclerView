@@ -6,5 +6,11 @@
         <attr name="playable_type" format="enum">
             <enum name="EXOPLAYER" value="0" />
         </attr>
+        <attr name="playable_autoplay" format="boolean" />
+        <attr name="playable_loop_type" format="enum">
+            <enum name="loop" value="0" />
+            <enum name="none" value="1" />
+        </attr>
+        <attr name="playable_pause_during_invisible" format="boolean" />
     </declare-styleable>
 </resources>

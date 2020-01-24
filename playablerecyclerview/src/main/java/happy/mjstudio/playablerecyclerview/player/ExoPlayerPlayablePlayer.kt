@@ -7,6 +7,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import happy.mjstudio.playablerecyclerview.enum.LoopType
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.model.Playable
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
@@ -14,10 +15,10 @@ import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 /**
  * Created by mj on 21, January, 2020
  */
-class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer {
+class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType) : PlayablePlayer {
 
     override var latestUsedTimeMs: Long = System.currentTimeMillis()
-    override var state = PlayerState.PAUSED
+    override var _state: PlayerState = PlayerState.PAUSED
 
     private val dataSourceFactory = ProgressiveMediaSource.Factory(
         DefaultDataSourceFactory(
@@ -31,12 +32,18 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer {
     private var lastHandledVideoUrl: String = ""
 
     init {
-        initPlayer()
+        initPlayer(loopType)
     }
 
-    private fun initPlayer() {
+    private fun initPlayer(loopType: LoopType) {
         player.run {
-            repeatMode = Player.REPEAT_MODE_ONE
+
+            playWhenReady = false
+
+            repeatMode = when (loopType) {
+                LoopType.LOOP -> Player.REPEAT_MODE_ONE
+                LoopType.NONE -> Player.REPEAT_MODE_OFF
+            }
 
             addListener(object : Player.EventListener {
                 override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -73,7 +80,6 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer {
 
     override fun pause() {
         super.pause()
-        state = PlayerState.PAUSED
 
         player.playWhenReady = false
     }
@@ -81,8 +87,6 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer {
     @Suppress("ControlFlowWithEmptyBody")
     override fun play(playable: Playable) {
         super.play(playable)
-
-        state = PlayerState.PLAYING
 
         //Resume Track
         if (playable.videoUrl == lastHandledVideoUrl) {
@@ -98,6 +102,10 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer {
         lastHandledVideoUrl = playable.videoUrl
 
         player.playWhenReady = true
+    }
+
+    override fun seekTo(ms: Long) {
+        player.seekTo(ms)
     }
 
     override fun release() {

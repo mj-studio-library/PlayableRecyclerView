@@ -1,6 +1,6 @@
 package happy.mjstudio.playablerecyclerview.enum
 
-import android.content.Context
+import android.app.Application
 import happy.mjstudio.playablerecyclerview.player.ExoPlayerPlayablePlayer
 
 /**
@@ -11,8 +11,8 @@ enum class PlayableType(val rawValue: Int) {
 
     ;
 
-    fun generatePlayer(context: Context) = when (this) {
-        EXOPLAYER -> ExoPlayerPlayablePlayer(context)
+    fun generatePlayer(context: Application, loopType: LoopType) = when (this) {
+        EXOPLAYER -> ExoPlayerPlayablePlayer(context, loopType)
     }
 
     companion object {
