@@ -14,7 +14,7 @@ import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 /**
  * Created by mj on 21, January, 2020
  */
-class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType) : PlayablePlayer {
+class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType, private val showLoading: Boolean) : PlayablePlayer {
 
     override var latestUsedTimeMs: Long = System.currentTimeMillis()
     override var _state: PlayerState = PlayerState.PAUSED
@@ -49,7 +49,7 @@ class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType) : PlayablePl
                     when (playbackState) {
 
                         Player.STATE_BUFFERING -> {
-                            if (state == PlayerState.PLAYING)
+                            if (state == PlayerState.PLAYING && showLoading)
                                 target?.showLoading()
                         }
 

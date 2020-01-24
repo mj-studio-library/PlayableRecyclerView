@@ -17,5 +17,6 @@ abstract class PlayableAdapter<T, VH : PlayableTarget<T>>(DIFF: DiffUtil.ItemCal
         holder.showThumbnail()
         holder.hideLoading()
     }
+
 }
 

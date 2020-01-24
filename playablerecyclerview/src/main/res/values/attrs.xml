@@ -12,5 +12,6 @@
             <enum name="none" value="1" />
         </attr>
         <attr name="playable_pause_during_invisible" format="boolean" />
+        <attr name="playable_show_default_loading" format="boolean" />
     </declare-styleable>
 </resources>

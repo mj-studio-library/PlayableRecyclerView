@@ -11,8 +11,8 @@ enum class PlayableType(val rawValue: Int) {
 
     ;
 
-    fun generatePlayer(context: Application, loopType: LoopType) = when (this) {
-        EXOPLAYER -> ExoPlayerPlayablePlayer(context, loopType)
+    fun generatePlayer(context: Application, loopType: LoopType, showLoading: Boolean) = when (this) {
+        EXOPLAYER -> ExoPlayerPlayablePlayer(context, loopType, showLoading)
     }
 
     companion object {

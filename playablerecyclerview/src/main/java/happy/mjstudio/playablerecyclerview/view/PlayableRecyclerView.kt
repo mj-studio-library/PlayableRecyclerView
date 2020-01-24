@@ -96,6 +96,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     private var isPauseDuringInvisible = DEFAULT_PAUSE_DURING_INVISIBLE
 
+    private var isShowDefaultLoading = DEFAULT_SHOW_LOADING
+
     /**
      * List of [PlayablePlayer] used for playback in List
      */
@@ -136,6 +138,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
             loopType = LoopType.parse(it.getInteger(R.styleable.PlayableRecyclerView_playable_loop_type, DEFAULT_LOOP_TYPE.rawValue))
 
             isPauseDuringInvisible = it.getBoolean(R.styleable.PlayableRecyclerView_playable_pause_during_invisible, DEFAULT_PAUSE_DURING_INVISIBLE)
+
+            isShowDefaultLoading = it.getBoolean(R.styleable.PlayableRecyclerView_playable_show_default_loading, DEFAULT_SHOW_LOADING)
         }
 
         if (isPageSnapping)
@@ -144,7 +148,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
         observeScrollEvent()
     }
 
-    private fun generatePlayer(): PlayablePlayer = playableType.generatePlayer(context.applicationContext as Application, loopType)
+    private fun generatePlayer(): PlayablePlayer =
+        playableType.generatePlayer(context.applicationContext as Application, loopType, isShowDefaultLoading)
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -330,6 +335,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
         private const val DEFAULT_AUTOPLAY = false
         private val DEFAULT_LOOP_TYPE = LoopType.NONE
         private const val DEFAULT_PAUSE_DURING_INVISIBLE = true
+        private const val DEFAULT_SHOW_LOADING = true
     }
 
 }
