@@ -2,6 +2,7 @@ package happy.mjstudio.playable
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import happy.mjstudio.playable.databinding.ItemPlayableBinding
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.view.PlayableAdapter
@@ -12,7 +13,7 @@ import happy.mjstudio.playablerecyclerview.view.PlayableView
  */
 class SampleAdapter(
     private val onItemClick: (Int) -> Unit
-) : PlayableAdapter<SampleAdapter.SampleHolder>() {
+) : PlayableAdapter<SamplePlayable, SampleAdapter.SampleHolder>(DIFF) {
 
     fun submitItems(items: List<SamplePlayable>) {
         submitList(items)
@@ -26,10 +27,10 @@ class SampleAdapter(
     }
 
     override fun onBindViewHolder(holder: SampleHolder, position: Int) {
-        holder.bind(currentList[position] as SamplePlayable)
+        holder.bind(currentList[position])
     }
 
-    inner class SampleHolder(private val binding: ItemPlayableBinding) : PlayableTarget(binding.root) {
+    inner class SampleHolder(private val binding: ItemPlayableBinding) : PlayableTarget<SamplePlayable>(binding.root) {
 
         init {
             binding.root.setOnClickListener {
@@ -38,7 +39,7 @@ class SampleAdapter(
         }
 
         fun bind(item: SamplePlayable) {
-            binding.playerView.setThumbnail((item as? SamplePlayable)?.thumbnailUrl)
+            binding.playerView.setThumbnail(item.thumbnailUrl)
             binding.item = item
             binding.executePendingBindings()
         }
@@ -60,11 +61,23 @@ class SampleAdapter(
         }
 
         override fun getVideoUrl(): String {
-            return (currentList[layoutPosition] as SamplePlayable).videoUrl
+            return currentList[layoutPosition].videoUrl
         }
 
         override fun getThumbnailUrl(): String? {
-            return (currentList[layoutPosition] as SamplePlayable).thumbnailUrl
+            return currentList[layoutPosition].thumbnailUrl
+        }
+    }
+
+    companion object {
+        private val DIFF = object : DiffUtil.ItemCallback<SamplePlayable>() {
+            override fun areItemsTheSame(oldItem: SamplePlayable, newItem: SamplePlayable): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areContentsTheSame(oldItem: SamplePlayable, newItem: SamplePlayable): Boolean {
+                return oldItem == newItem
+            }
         }
     }
 }

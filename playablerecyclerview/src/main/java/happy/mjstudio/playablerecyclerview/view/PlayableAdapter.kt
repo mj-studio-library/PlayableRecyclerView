@@ -7,19 +7,7 @@ import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 /**
  * Created by mj on 21, January, 2020
  */
-abstract class PlayableAdapter<VH : PlayableTarget>(DIFF: DiffUtil.ItemCallback<Any>? = null) :
-    ListAdapter<Any, VH>(DIFF ?: PlayableAdapter.DIFF) {
-    companion object {
-        private val DIFF = object : DiffUtil.ItemCallback<Any>() {
-            override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
-                return oldItem == newItem
-            }
-
-            override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
-                return oldItem == newItem
-            }
-        }
-    }
+abstract class PlayableAdapter<T, VH : PlayableTarget<T>>(DIFF: DiffUtil.ItemCallback<T>) : ListAdapter<T, VH>(DIFF) {
 
     override fun onViewRecycled(holder: VH) {
         super.onViewRecycled(holder)

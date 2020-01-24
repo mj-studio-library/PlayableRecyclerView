@@ -10,7 +10,7 @@ import happy.mjstudio.playablerecyclerview.view.PlayableView
 /**
  * Created by mj on 21, January, 2020
  */
-abstract class PlayableTarget(view: View) : RecyclerView.ViewHolder(view) {
+abstract class PlayableTarget<T>(view: View) : RecyclerView.ViewHolder(view) {
     var state: TargetState = TargetState.DETACHED
 
     var player: PlayablePlayer? = null

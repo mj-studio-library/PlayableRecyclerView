@@ -186,7 +186,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
      * @param childPosition position for item in LayoutManager
      */
     private fun computePlayerVisibleSize(childPosition: Int) =
-        computePlayerVisibleSize((findViewHolderForLayoutPosition(childPosition) as? PlayableTarget)?.getPlayableView())
+        computePlayerVisibleSize((findViewHolderForLayoutPosition(childPosition) as? PlayableTarget<*>)?.getPlayableView())
 
     @Suppress("NAME_SHADOWING")
     private fun computePlayerVisibleSize(playableView: PlayableView?): VisibleSize? {
@@ -251,7 +251,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
         val candidatePosition = position ?: firstCandidatePosition
 
-        val target: PlayableTarget = getPlayableTargetWithPosition(candidatePosition) ?: return false
+        val target: PlayableTarget<*> = getPlayableTargetWithPosition(candidatePosition) ?: return false
 
         when (target.state) {
             TargetState.ATTACHED -> {
@@ -272,19 +272,19 @@ class PlayableRecyclerView @JvmOverloads constructor(
     }
 
     private fun pausePlayable(position: Int): Boolean {
-        val target: PlayableTarget = getPlayableTargetWithPosition(position) ?: return false
+        val target: PlayableTarget<*> = getPlayableTargetWithPosition(position) ?: return false
         target.player?.pause() ?: return false
 
         return true
     }
 
     private fun getPlaygingState(position: Int): PlayerState? {
-        val target: PlayableTarget = getPlayableTargetWithPosition(position) ?: return null
+        val target: PlayableTarget<*> = getPlayableTargetWithPosition(position) ?: return null
         return target.player?.state
     }
 
     private fun seekToPlayablePlayback(position: Int, ms: Long): Boolean {
-        val target: PlayableTarget = getPlayableTargetWithPosition(position) ?: return false
+        val target: PlayableTarget<*> = getPlayableTargetWithPosition(position) ?: return false
         target.player?.seekTo(ms) ?: return false
 
         return true
@@ -301,12 +301,12 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     //region Utils
 
-    private fun getPlayableTargetWithView(view: View): PlayableTarget? {
+    private fun getPlayableTargetWithView(view: View): PlayableTarget<*>? {
         return getPlayableTargetWithPosition(getChildLayoutPosition(view))
     }
 
-    private fun getPlayableTargetWithPosition(position: Int): PlayableTarget? {
-        return findViewHolderForLayoutPosition(position) as? PlayableTarget
+    private fun getPlayableTargetWithPosition(position: Int): PlayableTarget<*>? {
+        return findViewHolderForLayoutPosition(position) as? PlayableTarget<*>
     }
 
     private fun updatePlayerPriority() {

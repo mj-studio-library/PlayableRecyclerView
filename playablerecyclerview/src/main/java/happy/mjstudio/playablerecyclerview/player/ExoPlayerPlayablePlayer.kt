@@ -75,7 +75,7 @@ class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType) : PlayablePl
         }
     }
 
-    override var target: PlayableTarget? = null
+    override var target: PlayableTarget<*>? = null
 
     override fun pause() {
         super.pause()
@@ -115,7 +115,7 @@ class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType) : PlayablePl
         latestUsedTimeMs = System.currentTimeMillis()
     }
 
-    override fun attach(oldTarget: PlayableTarget?, target: PlayableTarget) {
+    override fun attach(oldTarget: PlayableTarget<*>?, target: PlayableTarget<*>) {
         super.attach(oldTarget, target)
         PlayerView.switchTargetView(player, oldTarget?.getPlayableView() as? PlayerView, target.getPlayableView() as? PlayerView)
     }

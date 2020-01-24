@@ -9,10 +9,10 @@ import happy.mjstudio.playablerecyclerview.target.PlayableTarget
  */
 interface PlayablePlayer {
 
-    var target: PlayableTarget?
+    var target: PlayableTarget<*>?
 
     @CallSuper
-    fun attach(oldTarget: PlayableTarget?, target: PlayableTarget) {
+    fun attach(oldTarget: PlayableTarget<*>?, target: PlayableTarget<*>) {
         this.target = target
         target.onAttached(this)
     }
