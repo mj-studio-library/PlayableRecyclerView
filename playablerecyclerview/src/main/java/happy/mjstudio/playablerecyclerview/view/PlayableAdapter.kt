@@ -8,7 +8,6 @@ import happy.mjstudio.playablerecyclerview.model.Playable
 /**
  * Created by mj on 21, January, 2020
  */
-
 abstract class PlayableAdapter<VH : RecyclerView.ViewHolder>() : ListAdapter<Playable, VH>(DIFF) {
     companion object {
         private val DIFF = object : DiffUtil.ItemCallback<Playable>() {

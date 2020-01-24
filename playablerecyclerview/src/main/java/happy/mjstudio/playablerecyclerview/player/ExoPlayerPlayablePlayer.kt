@@ -72,6 +72,7 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayab
     override var target: ExoPlayerPlayableTarget? = null
 
     override fun pause() {
+        super.pause()
         state = PlayerState.PAUSED
 
         player.playWhenReady = false

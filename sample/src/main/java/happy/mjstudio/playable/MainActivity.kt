@@ -1,5 +1,6 @@
 package happy.mjstudio.playable
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
@@ -59,11 +60,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        mBinding.recyclerView.apply {
-            adapter = SampleAdapter().apply {
-                submitItems(sampleDatas)
+        mBinding.apply {
+            with(recyclerView) {
+                adapter = SampleAdapter().apply {
+                    submitItems(sampleDatas)
+                }
+            }
+
+            with(open) {
+                setOnClickListener {
+                    startActivity(Intent(this@MainActivity, MainActivity::class.java))
+                }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mBinding.recyclerView.manager.resumeCurrentPlayable()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBinding.recyclerView.manager.pauseAllPlayable()
     }
 
 }

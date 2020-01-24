@@ -1,10 +1,14 @@
 package happy.mjstudio.playablerecyclerview.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.content.res.use
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import happy.mjstudio.playablerecyclerview.R
+import happy.mjstudio.playablerecyclerview.common.VisibleSize
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.enum.TargetState
 import happy.mjstudio.playablerecyclerview.manager.PlayableManager
@@ -16,11 +20,13 @@ import happy.mjstudio.playablerecyclerview.util.attachSnapHelper
 import happy.mjstudio.playablerecyclerview.util.debugE
 import java.util.*
 import java.util.concurrent.Semaphore
+import kotlin.math.abs
 
 
 /**
  * Created by mj on 20, January, 2020
  */
+@SuppressLint("Recycle")
 class PlayableRecyclerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
@@ -52,14 +58,19 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     //region Variable
 
+    /**
+     * max count of players can play it's content concurrently
+     *
+     * default = 1
+     */
     private var videoPlayingConcurrentMax = DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX
 
     /**
      * Used [PlayablePlayer] count in [playerPool]
      *
-     * default = 1
+     * default = 2
      */
-    private var playerCount = DEFAULT_PLAYER_COUNT
+    private var playerCount = DEFAULT_PLAYER_POOL_COUNT
 
     /**
      * List of [PlayablePlayer] used for playback in List
@@ -79,42 +90,20 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     private var firstCandidatePosition = -1
 
-    /**
-     * Device Screen Height
-     */
+    /** Device Screen Size */
+    private val screenWidth: Int = resources.displayMetrics.widthPixels
     private val screenHeight: Int = resources.displayMetrics.heightPixels
-
-    private val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
     private var isPageSnapping = false
     //endregion
 
-    //region Save/Restore State
-
-//    @Parcelize
-//    private data class SavedState(
-//        val playerCount: Int
-//    ) : Parcelable
-//
-//    override fun onSaveInstanceState(): Parcelable? {
-//        super.onSaveInstanceState()
-//        return SavedState(this.playerCount)
-//    }
-//
-//    override fun onRestoreInstanceState(state: Parcelable?) {
-//        (state as? SavedState)?.let {
-//            this.playerCount = it.playerCount
-//        }
-//        super.onRestoreInstanceState(state)
-//    }
-
-    //endregion
-
     init {
-        // Setting for saving state of view properties
-        isSaveEnabled = true
 
-        setLayoutManager(layoutManager)
+        context.obtainStyledAttributes(attrs, R.styleable.PlayableRecyclerView, 0, 0).use {
+            playerCount = it.getInteger(R.styleable.PlayableRecyclerView_playable_player_pool_count, DEFAULT_PLAYER_POOL_COUNT)
+            videoPlayingConcurrentMax =
+                it.getInteger(R.styleable.PlayableRecyclerView_playable_player_concurrent_max, DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX)
+        }
 
         if (isPageSnapping)
             attachSnapHelper()
@@ -127,7 +116,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        playerPool = (0 until playerCount).map { generatePlayer() }
+        if (!isInEditMode)
+            playerPool = (0 until playerCount).map { generatePlayer() }
     }
 
     override fun onDetachedFromWindow() {
@@ -158,11 +148,10 @@ class PlayableRecyclerView @JvmOverloads constructor(
     }
 
     /**
-     * Returns the visible region of the video surface on the screen.
-     * @param position position for item
-     * @return
+     * Returns the visible size of the video surface on the screen.
+     * @param position position for item in LayoutManager
      */
-    private fun computeVisibleItemHeight(position: Int): Int? {
+    private fun computeVisibleItemSize(position: Int): VisibleSize? {
         /** Get ExoPlayer PlayerView or ViewHolder view itself */
         val child = findViewHolderForLayoutPosition(position)?.let { vh ->
             if (vh is ExoPlayerPlayableTarget)
@@ -171,30 +160,35 @@ class PlayableRecyclerView @JvmOverloads constructor(
                 vh.itemView
         } ?: return null
 
+        val childWidth = child.width
+        val childHeight = child.height
+
         val location = IntArray(2)
         child.getLocationInWindow(location)
 
-        val y = location[1]
+        val startX = location[0]
+        val startY = location[1]
 
-        return when {
-            y < 0 -> {
-                child.height + y
-            }
-            y + child.height < screenHeight -> {
-                child.height
-            }
-            else -> {
-                screenHeight - y
-            }
-        }
+        val endX = startX + childWidth
+        val endY = startY + childHeight
+
+        val clippedWidth = (if (startX < 0) abs(startX) else 0) + (if (endX > screenWidth) endX - screenWidth else 0)
+        val clippedHeight = (if (startY < 0) abs(startY) else 0) + (if (endY > screenHeight) endY - screenHeight else 0)
+
+        val visibleWidth = endX - startX - clippedWidth
+        val visibleHeight = endY - startY - clippedHeight
+
+        return visibleWidth * visibleHeight
     }
 
     private fun computeFirstCandidatePosition(): Int {
+        val layoutManager = layoutManager as? LinearLayoutManager ?: throw RuntimeException("LayoutManager is not LinearLayoutManager")
+
         val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
         val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
 
         return (firstVisiblePosition..lastVisiblePosition).maxBy {
-            computeVisibleItemHeight(it) ?: 0
+            computeVisibleItemSize(it) ?: 0
         } ?: firstVisiblePosition
     }
 
@@ -211,7 +205,9 @@ class PlayableRecyclerView @JvmOverloads constructor(
             val playersSortedOldest = playerPool.sortedBy { it.latestUsedTimeMs }
 
             playersSortedOldest.forEach {
+
                 if (pauseCountLatch == 0) return@forEach
+
                 if (it.state == PlayerState.PLAYING) {
                     it.pause()
                     pauseCountLatch -= 1
@@ -230,7 +226,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
         when (target.state) {
             TargetState.ATTACHED -> {
                 debugE(TAG, "ATTACHED")
-                target.player!!.play(playable)
+                target.player?.play(playable)
             }
             TargetState.DETACHED -> {
                 debugE(TAG, "DETACHED")
@@ -244,16 +240,6 @@ class PlayableRecyclerView @JvmOverloads constructor(
         }
 
         pauseOldPlayers()
-    }
-
-    //endregion
-
-
-    //region Lifecycle
-
-    override fun onChildDetachedFromWindow(child: View) {
-//        val target = getPlayableTargetWithView(child)
-//        target.player?.detach()
     }
 
     //endregion
@@ -286,8 +272,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
     companion object {
         private val TAG = PlayableRecyclerView::class.java.simpleName
 
-        private const val DEFAULT_PLAYER_COUNT = 0x05
-        private const val DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX = 0x05
+        private const val DEFAULT_PLAYER_POOL_COUNT = 0x02
+        private const val DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX = 0x01
     }
 
 }

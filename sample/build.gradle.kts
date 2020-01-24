@@ -29,6 +29,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
+    lintOptions {
+        isAbortOnError = true
+        isWarningsAsErrors = true
+    }
 }
 
 dependencies {
@@ -49,6 +54,10 @@ dependencies {
     kapt("com.github.bumptech.glide:compiler:4.11.0")
 
     implementation("com.google.android.material:material:1.2.0-alpha03")
+
+    implementation("de.hdodenhof:circleimageview:3.0.2")
+
+    implementation("com.victor:lib:1.0.4")
 
     implementation("com.google.android.exoplayer:exoplayer-core:2.11.1")
     implementation("com.google.android.exoplayer:exoplayer-ui:2.11.1")
