@@ -16,18 +16,61 @@ import happy.mjstudio.playablerecyclerview.target.ExoPlayerPlayableTarget
  */
 class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayableTarget> {
 
+    companion object {
+        private val TAG = ExoPlayerPlayablePlayer::class.java.simpleName
+    }
+
     override var latestUsedTimeMs: Long = System.currentTimeMillis()
     override var state = PlayerState.PAUSED
 
-    private val dataSourceFactory = ProgressiveMediaSource.Factory(DefaultDataSourceFactory(context,
-        ExoPlayerPlayablePlayer::class.java.simpleName))
+    private val dataSourceFactory = ProgressiveMediaSource.Factory(
+        DefaultDataSourceFactory(
+            context,
+            ExoPlayerPlayablePlayer::class.java.simpleName
+        )
+    )
+
+    private val player = SimpleExoPlayer.Builder(context).build()
 
     private var lastHandledVideoUrl: String = ""
 
-    val player = SimpleExoPlayer.Builder(context).build()
-
     init {
-        player.repeatMode = Player.REPEAT_MODE_ONE
+        initPlayer()
+
+    }
+
+    private fun initPlayer() {
+        player.run {
+            repeatMode = Player.REPEAT_MODE_ONE
+
+            addListener(object : Player.EventListener {
+                override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                    when (playbackState) {
+
+                        Player.STATE_BUFFERING -> {
+                            target?.showLoading()
+                        }
+
+                        Player.STATE_READY -> {
+
+                            if (playWhenReady) {
+                                target?.hideLoading()
+                                target?.hideThumbnail()
+                            }
+
+                        }
+
+                        Player.STATE_ENDED -> {
+
+                        }
+
+                        Player.STATE_IDLE -> {
+
+                        }
+                    }
+                }
+            })
+        }
     }
 
     override var target: ExoPlayerPlayableTarget? = null
@@ -44,7 +87,7 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayab
         state = PlayerState.PLAYING
 
         //Resume Track
-        if(playable.videoUrl == lastHandledVideoUrl) {
+        if (playable.videoUrl == lastHandledVideoUrl) {
             //Do Noting
         }
         //Change Track
@@ -68,13 +111,12 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayab
     }
 
     override fun attach(oldTarget: ExoPlayerPlayableTarget?, target: ExoPlayerPlayableTarget) {
-        super.attach(oldTarget,target)
-
-        PlayerView.switchTargetView(player,oldTarget?.getPlayerView(),target.getPlayerView())
+        super.attach(oldTarget, target)
+        PlayerView.switchTargetView(player, oldTarget?.getPlayerView(), target.getPlayerView())
     }
 
     override fun detach() {
         super.detach()
-        player.playWhenReady = false
+        player.stop()
     }
 }

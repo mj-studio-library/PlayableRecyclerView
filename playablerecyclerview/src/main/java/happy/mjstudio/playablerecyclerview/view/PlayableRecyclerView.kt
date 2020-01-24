@@ -1,11 +1,11 @@
 package happy.mjstudio.playablerecyclerview.view
 
 import android.content.Context
-import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import happy.mjstudio.playablerecyclerview.manager.PlayableManager
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.enum.TargetState
 import happy.mjstudio.playablerecyclerview.player.ExoPlayerPlayablePlayer
@@ -13,7 +13,6 @@ import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.util.attachSnapHelper
 import happy.mjstudio.playablerecyclerview.util.debugE
-import kotlinx.android.parcel.Parcelize
 import java.util.*
 import java.util.concurrent.Semaphore
 
@@ -26,12 +25,29 @@ class PlayableRecyclerView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : RecyclerView(context, attrs) {
 
-    companion object {
-        private val TAG = PlayableRecyclerView::class.java.simpleName
+    //region Manager
 
-        private const val DEFAULT_PLAYER_COUNT = 0x02
-        private const val DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX = 0x01
+    val manager: PlayableManager = object : PlayableManager {
+        override fun pauseAllPlayable() {
+            playerPool.forEach { player ->
+                if (player.state == PlayerState.PLAYING) {
+                    player.pause()
+                }
+            }
+        }
+
+        override fun resumeCurrentPlayable() {
+            playNewCandidate()
+        }
+
+        override fun updatePlayables() {
+            pauseAllPlayable()
+            resumeCurrentPlayable()
+        }
     }
+
+    //endregion
+
 
     //region Variable
 
@@ -69,27 +85,27 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     private val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-    private var isPageSnapping = true
+    private var isPageSnapping = false
     //endregion
 
     //region Save/Restore State
 
-    @Parcelize
-    private data class SavedState(
-        val playerCount: Int
-    ) : Parcelable
-
-    override fun onSaveInstanceState(): Parcelable? {
-        super.onSaveInstanceState()
-        return SavedState(this.playerCount)
-    }
-
-    override fun onRestoreInstanceState(state: Parcelable?) {
-        (state as? SavedState)?.let {
-            this.playerCount = it.playerCount
-        }
-        super.onRestoreInstanceState(state)
-    }
+//    @Parcelize
+//    private data class SavedState(
+//        val playerCount: Int
+//    ) : Parcelable
+//
+//    override fun onSaveInstanceState(): Parcelable? {
+//        super.onSaveInstanceState()
+//        return SavedState(this.playerCount)
+//    }
+//
+//    override fun onRestoreInstanceState(state: Parcelable?) {
+//        (state as? SavedState)?.let {
+//            this.playerCount = it.playerCount
+//        }
+//        super.onRestoreInstanceState(state)
+//    }
 
     //endregion
 
@@ -199,10 +215,9 @@ class PlayableRecyclerView @JvmOverloads constructor(
     private fun playNewCandidate() {
 
         val adapter = (adapter as? PlayableAdapter<*>) ?: return
-        val playable = adapter.currentList[firstCandidatePosition]
+        val playable = adapter.currentList.getOrNull(firstCandidatePosition) ?: return
 
-        val target: PlayableTarget = getPlayableTargetWithPosition(firstCandidatePosition)
-        debugE(target)
+        val target: PlayableTarget = getPlayableTargetWithPosition(firstCandidatePosition) ?: return
 
         when (target.state) {
             TargetState.ATTACHED -> {
@@ -237,12 +252,12 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     //region Utils
 
-    private fun getPlayableTargetWithView(view: View): PlayableTarget {
+    private fun getPlayableTargetWithView(view: View): PlayableTarget? {
         return getPlayableTargetWithPosition(getChildLayoutPosition(view))
     }
 
-    private fun getPlayableTargetWithPosition(position: Int): PlayableTarget {
-        return findViewHolderForLayoutPosition(position) as PlayableTarget
+    private fun getPlayableTargetWithPosition(position: Int): PlayableTarget? {
+        return findViewHolderForLayoutPosition(position) as? PlayableTarget
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -260,5 +275,11 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     //endregion
 
+    companion object {
+        private val TAG = PlayableRecyclerView::class.java.simpleName
+
+        private const val DEFAULT_PLAYER_COUNT = 0x02
+        private const val DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX = 0x01
+    }
 
 }

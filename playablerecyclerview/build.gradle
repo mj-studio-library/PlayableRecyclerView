@@ -2,7 +2,9 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.github.dcendents.android-maven'
 
+group='com.github.mym0404'
 
 android {
     compileSdkVersion(Version.compileSdk)
@@ -41,11 +43,9 @@ dependencies {
 
     implementation("com.google.android.exoplayer:exoplayer-core:2.11.1")
     implementation("com.google.android.exoplayer:exoplayer-ui:2.11.1")
-
 }
 
-apply plugin: 'com.github.dcendents.android-maven'
-group='com.github.mym0404'
+
 
 
 

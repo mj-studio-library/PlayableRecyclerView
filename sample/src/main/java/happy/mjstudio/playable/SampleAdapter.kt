@@ -2,6 +2,7 @@ package happy.mjstudio.playable
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.ui.PlayerView
 import happy.mjstudio.playable.databinding.ItemPlayableBinding
@@ -17,7 +18,7 @@ import happy.mjstudio.playablerecyclerview.view.PlayableAdapter
  */
 class SampleAdapter : PlayableAdapter<SampleAdapter.SampleHolder>() {
 
-    fun submitItems(items : List<Playable>) {
+    fun submitItems(items: List<Playable>) {
         submitList(items)
     }
 
@@ -29,13 +30,17 @@ class SampleAdapter : PlayableAdapter<SampleAdapter.SampleHolder>() {
     }
 
 
-    override fun onBindViewHolder(holder: SampleHolder, position: Int){
-
+    override fun onBindViewHolder(holder: SampleHolder, position: Int) {
+        holder.bind(currentList[position])
     }
 
 
-    inner class SampleHolder(private val binding: ItemPlayableBinding) : RecyclerView.ViewHolder(binding.root),
-        ExoPlayerPlayableTarget {
+    inner class SampleHolder(private val binding: ItemPlayableBinding) : RecyclerView.ViewHolder(binding.root), ExoPlayerPlayableTarget {
+
+        fun bind(item: Playable) {
+            binding.thumbnail.loadUrlAsync((item as? CommonPlayable)?.thumbnailUrl)
+        }
+
         override fun getPlayerView(): PlayerView {
             return binding.playerView
         }
@@ -43,5 +48,21 @@ class SampleAdapter : PlayableAdapter<SampleAdapter.SampleHolder>() {
         override var player: PlayablePlayer<out PlayableTarget>? = null
 
         override var state: TargetState = TargetState.DETACHED
+
+        override fun showThumbnail() {
+            binding.thumbnail.isInvisible = false
+        }
+
+        override fun hideThumbnail() {
+            binding.thumbnail.isInvisible = true
+        }
+
+        override fun showLoading() {
+            binding.progress.isInvisible = false
+        }
+
+        override fun hideLoading() {
+            binding.progress.isInvisible = true
+        }
     }
 }

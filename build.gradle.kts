@@ -22,6 +22,7 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
+        maven { setUrl("https://jitpack.io") }
     }
 }
 

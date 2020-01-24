@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-android-extensions")
+    id("kotlin-kapt")
 }
 
 android {
@@ -32,7 +33,7 @@ android {
 
 dependencies {
     implementation(project(":playablerecyclerview"))
-
+//    implementation("com.github.mym0404:PlayableRecyclerView:0.1.3")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
     implementation("io.reactivex.rxjava2:rxjava:2.2.17")
 
@@ -43,6 +44,9 @@ dependencies {
     testImplementation("junit:junit:4.13")
     androidTestImplementation("androidx.test.ext:junit:1.1.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
+
+    implementation("com.github.bumptech.glide:glide:4.11.0")
+    kapt("com.github.bumptech.glide:compiler:4.11.0")
 
     implementation("com.google.android.material:material:1.2.0-alpha03")
 
