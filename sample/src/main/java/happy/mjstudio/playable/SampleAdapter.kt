@@ -2,16 +2,11 @@ package happy.mjstudio.playable
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.view.isInvisible
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.exoplayer2.ui.PlayerView
 import happy.mjstudio.playable.databinding.ItemPlayableBinding
-import happy.mjstudio.playablerecyclerview.enum.TargetState
 import happy.mjstudio.playablerecyclerview.model.Playable
-import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
-import happy.mjstudio.playablerecyclerview.target.ExoPlayerPlayableTarget
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.view.PlayableAdapter
+import happy.mjstudio.playablerecyclerview.view.PlayableView
 
 /**
  * Created by mj on 21, January, 2020
@@ -29,40 +24,30 @@ class SampleAdapter : PlayableAdapter<SampleAdapter.SampleHolder>() {
         return SampleHolder(binding)
     }
 
-
     override fun onBindViewHolder(holder: SampleHolder, position: Int) {
         holder.bind(currentList[position])
     }
 
-
-    inner class SampleHolder(private val binding: ItemPlayableBinding) : RecyclerView.ViewHolder(binding.root), ExoPlayerPlayableTarget {
+    inner class SampleHolder(private val binding: ItemPlayableBinding) : PlayableTarget(binding.root) {
 
         fun bind(item: Playable) {
-            binding.thumbnail.loadUrlAsync((item as? CommonPlayable)?.thumbnailUrl)
+            binding.playerView.setThumbnail((item as? CommonPlayable)?.thumbnailUrl)
         }
 
-        override fun getPlayerView(): PlayerView {
+        override fun getPlayableView(): PlayableView {
             return binding.playerView
         }
 
-        override var player: PlayablePlayer<out PlayableTarget>? = null
-
-        override var state: TargetState = TargetState.DETACHED
-
-        override fun showThumbnail() {
-            binding.thumbnail.isInvisible = false
+        override fun onShowThumbnail() {
         }
 
-        override fun hideThumbnail() {
-            binding.thumbnail.isInvisible = true
+        override fun onHideThumbnail() {
         }
 
-        override fun showLoading() {
-            binding.progress.isInvisible = false
+        override fun onShowLoading() {
         }
 
-        override fun hideLoading() {
-            binding.progress.isInvisible = true
+        override fun onHideLoading() {
         }
     }
 }

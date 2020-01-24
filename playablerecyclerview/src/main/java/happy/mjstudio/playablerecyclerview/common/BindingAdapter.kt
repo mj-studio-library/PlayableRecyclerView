@@ -1,4 +1,4 @@
-package happy.mjstudio.playable
+package happy.mjstudio.playablerecyclerview.common
 
 import android.graphics.drawable.Drawable
 import android.view.View

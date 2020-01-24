@@ -8,12 +8,12 @@ import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 /**
  * Created by mj on 20, January, 2020
  */
-interface PlayablePlayer<Target : PlayableTarget> {
+interface PlayablePlayer {
 
-    var target: Target?
+    var target: PlayableTarget?
 
     @CallSuper
-    fun attach(oldTarget: Target?, target: Target) {
+    fun attach(oldTarget: PlayableTarget?, target: PlayableTarget) {
         this.target = target
         target.onAttached(this)
     }

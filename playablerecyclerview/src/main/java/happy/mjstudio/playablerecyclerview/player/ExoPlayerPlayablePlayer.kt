@@ -9,12 +9,12 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.model.Playable
-import happy.mjstudio.playablerecyclerview.target.ExoPlayerPlayableTarget
+import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 
 /**
  * Created by mj on 21, January, 2020
  */
-class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayableTarget> {
+class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer {
 
     override var latestUsedTimeMs: Long = System.currentTimeMillis()
     override var state = PlayerState.PAUSED
@@ -32,7 +32,6 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayab
 
     init {
         initPlayer()
-
     }
 
     private fun initPlayer() {
@@ -69,7 +68,7 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayab
         }
     }
 
-    override var target: ExoPlayerPlayableTarget? = null
+    override var target: PlayableTarget? = null
 
     override fun pause() {
         super.pause()
@@ -78,6 +77,7 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayab
         player.playWhenReady = false
     }
 
+    @Suppress("ControlFlowWithEmptyBody")
     override fun play(playable: Playable) {
         super.play(playable)
 
@@ -107,9 +107,9 @@ class ExoPlayerPlayablePlayer(context: Context) : PlayablePlayer<ExoPlayerPlayab
         latestUsedTimeMs = System.currentTimeMillis()
     }
 
-    override fun attach(oldTarget: ExoPlayerPlayableTarget?, target: ExoPlayerPlayableTarget) {
+    override fun attach(oldTarget: PlayableTarget?, target: PlayableTarget) {
         super.attach(oldTarget, target)
-        PlayerView.switchTargetView(player, oldTarget?.getPlayerView(), target.getPlayerView())
+        PlayerView.switchTargetView(player, oldTarget?.getPlayableView() as? PlayerView, target.getPlayableView() as? PlayerView)
     }
 
     override fun detach() {

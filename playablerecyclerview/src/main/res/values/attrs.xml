@@ -3,5 +3,8 @@
     <declare-styleable name="PlayableRecyclerView">
         <attr name="playable_player_pool_count" format="integer" />
         <attr name="playable_player_concurrent_max" format="integer" />
+        <attr name="playable_type" format="enum">
+            <enum name="EXOPLAYER" value="0" />
+        </attr>
     </declare-styleable>
 </resources>

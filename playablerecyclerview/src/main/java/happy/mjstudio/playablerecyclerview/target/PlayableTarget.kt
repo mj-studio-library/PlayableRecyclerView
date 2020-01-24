@@ -1,23 +1,30 @@
 package happy.mjstudio.playablerecyclerview.target
 
+import android.view.View
+import androidx.annotation.CallSuper
+import androidx.recyclerview.widget.RecyclerView
 import happy.mjstudio.playablerecyclerview.enum.TargetState
 import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
+import happy.mjstudio.playablerecyclerview.view.PlayableView
 
 /**
  * Created by mj on 21, January, 2020
  */
-interface PlayableTarget {
-    var state: TargetState
+abstract class PlayableTarget(view: View) : RecyclerView.ViewHolder(view) {
+    var state: TargetState = TargetState.DETACHED
 
-    var player: PlayablePlayer<out PlayableTarget>?
+    var player: PlayablePlayer? = null
 
-    fun onAttached(player: PlayablePlayer<out PlayableTarget>) {
+    abstract fun getPlayableView(): PlayableView
+
+    @CallSuper
+    fun onAttached(player: PlayablePlayer) {
         this.player = player
         state = TargetState.ATTACHED
-//        showThumbnail()
         showLoading()
     }
 
+    @CallSuper
     fun onDetached() {
         this.player = null
         state = TargetState.DETACHED
@@ -25,11 +32,32 @@ interface PlayableTarget {
         hideLoading()
     }
 
-    fun showThumbnail()
+    @CallSuper
+    fun showThumbnail() {
+        getPlayableView().showThumbnail()
+        onShowThumbnail()
+    }
 
-    fun hideThumbnail()
+    @CallSuper
+    fun hideThumbnail() {
+        getPlayableView().hideThumbnail()
+        onHideThumbnail()
+    }
 
-    fun showLoading()
+    @CallSuper
+    fun showLoading() {
+        getPlayableView().showLoading()
+        onShowLoading()
+    }
 
-    fun hideLoading()
+    @CallSuper
+    fun hideLoading() {
+        getPlayableView().hideLoading()
+        onHideLoading()
+    }
+
+    abstract fun onShowThumbnail()
+    abstract fun onHideThumbnail()
+    abstract fun onShowLoading()
+    abstract fun onHideLoading()
 }

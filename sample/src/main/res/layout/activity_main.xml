@@ -8,6 +8,10 @@
         tools:context=".MainActivity">
 
         <happy.mjstudio.playablerecyclerview.view.PlayableRecyclerView
+            app:playable_type="EXOPLAYER"
+            app:playable_player_pool_count="2"
+            app:playable_player_concurrent_max="1"
+
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:orientation="vertical"
             tools:listitem="@layout/item_playable"

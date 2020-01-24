@@ -9,12 +9,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import happy.mjstudio.playablerecyclerview.R
 import happy.mjstudio.playablerecyclerview.common.VisibleSize
+import happy.mjstudio.playablerecyclerview.enum.PlayableType
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.enum.TargetState
 import happy.mjstudio.playablerecyclerview.manager.PlayableManager
-import happy.mjstudio.playablerecyclerview.player.ExoPlayerPlayablePlayer
+import happy.mjstudio.playablerecyclerview.model.Playable
 import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
-import happy.mjstudio.playablerecyclerview.target.ExoPlayerPlayableTarget
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.util.attachSnapHelper
 import happy.mjstudio.playablerecyclerview.util.debugE
@@ -58,6 +58,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     //region Variable
 
+    private var playableType: PlayableType = DEFAULT_PLAYABLE_TYPE
+
     /**
      * max count of players can play it's content concurrently
      *
@@ -70,19 +72,19 @@ class PlayableRecyclerView @JvmOverloads constructor(
      *
      * default = 2
      */
-    private var playerCount = DEFAULT_PLAYER_POOL_COUNT
+    private var playerPoolCount = DEFAULT_PLAYER_POOL_COUNT
 
     /**
      * List of [PlayablePlayer] used for playback in List
      */
-    private var playerPool = listOf<PlayablePlayer<out PlayableTarget>>()
+    private var playerPool = listOf<PlayablePlayer>()
         set(value) {
             updatePlayerPriority()
             field = value
         }
 
     private val playerQueue =
-        PriorityQueue<PlayablePlayer<PlayableTarget>>(playerCount) { lhs, rhs ->
+        PriorityQueue<PlayablePlayer>(playerPoolCount) { lhs, rhs ->
             (lhs.latestUsedTimeMs - rhs.latestUsedTimeMs).toInt()
         }
 
@@ -100,7 +102,10 @@ class PlayableRecyclerView @JvmOverloads constructor(
     init {
 
         context.obtainStyledAttributes(attrs, R.styleable.PlayableRecyclerView, 0, 0).use {
-            playerCount = it.getInteger(R.styleable.PlayableRecyclerView_playable_player_pool_count, DEFAULT_PLAYER_POOL_COUNT)
+            playableType = PlayableType.parse(it.getInteger(R.styleable.PlayableRecyclerView_playable_type, DEFAULT_PLAYABLE_TYPE.rawValue))
+
+            playerPoolCount = it.getInteger(R.styleable.PlayableRecyclerView_playable_player_pool_count, DEFAULT_PLAYER_POOL_COUNT)
+
             videoPlayingConcurrentMax =
                 it.getInteger(R.styleable.PlayableRecyclerView_playable_player_concurrent_max, DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX)
         }
@@ -111,13 +116,12 @@ class PlayableRecyclerView @JvmOverloads constructor(
         observeScrollEvent()
     }
 
-    private fun generatePlayer(): PlayablePlayer<out PlayableTarget> =
-        ExoPlayerPlayablePlayer(context)
+    private fun generatePlayer(): PlayablePlayer = playableType.generatePlayer(context)
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         if (!isInEditMode)
-            playerPool = (0 until playerCount).map { generatePlayer() }
+            playerPool = (0 until playerPoolCount).map { generatePlayer() }
     }
 
     override fun onDetachedFromWindow() {
@@ -148,29 +152,23 @@ class PlayableRecyclerView @JvmOverloads constructor(
     }
 
     /**
-     * Returns the visible size of the video surface on the screen.
-     * @param position position for item in LayoutManager
+     * Returns the visible size of the [Playable] surface on the screen.
+     * @param childPosition position for item in LayoutManager
      */
-    private fun computeVisibleItemSize(position: Int): VisibleSize? {
-        /** Get ExoPlayer PlayerView or ViewHolder view itself */
-        val child = findViewHolderForLayoutPosition(position)?.let { vh ->
-            if (vh is ExoPlayerPlayableTarget)
-                vh.getPlayerView()
-            else
-                vh.itemView
-        } ?: return null
+    private fun computeVisibleItemSize(childPosition: Int): VisibleSize? {
+        val playableView = (findViewHolderForLayoutPosition(childPosition) as? PlayableTarget)?.getPlayableView() as? View ?: return null
 
-        val childWidth = child.width
-        val childHeight = child.height
+        val playableWidth = playableView.width
+        val playableHeight = playableView.height
 
         val location = IntArray(2)
-        child.getLocationInWindow(location)
+        playableView.getLocationInWindow(location)
 
         val startX = location[0]
         val startY = location[1]
 
-        val endX = startX + childWidth
-        val endY = startY + childHeight
+        val endX = startX + playableWidth
+        val endY = startY + playableHeight
 
         val clippedWidth = (if (startX < 0) abs(startX) else 0) + (if (endX > screenWidth) endX - screenWidth else 0)
         val clippedHeight = (if (startY < 0) abs(startY) else 0) + (if (endY > screenHeight) endY - screenHeight else 0)
@@ -254,15 +252,14 @@ class PlayableRecyclerView @JvmOverloads constructor(
         return findViewHolderForLayoutPosition(position) as? PlayableTarget
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun updatePlayerPriority() {
         playerQueueLock.acquire()
         playerQueue.clear()
-        playerPool.forEach { playerQueue.offer(it as PlayablePlayer<PlayableTarget>) }
+        playerPool.forEach { playerQueue.offer(it) }
         playerQueueLock.release()
     }
 
-    private fun dequeueOldestPlayer(): PlayablePlayer<PlayableTarget> {
+    private fun dequeueOldestPlayer(): PlayablePlayer {
         updatePlayerPriority()
         return playerQueue.peek()?.also { it.updateUsedTime() } ?: throw RuntimeException("WTF")
     }
@@ -272,6 +269,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
     companion object {
         private val TAG = PlayableRecyclerView::class.java.simpleName
 
+        private val DEFAULT_PLAYABLE_TYPE = PlayableType.EXOPLAYER
         private const val DEFAULT_PLAYER_POOL_COUNT = 0x02
         private const val DEFAULT_VIDEO_PLAYING_CONCURRENT_MAX = 0x01
     }
