@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     private val sampleDatas = sampleVideos.indices.map {
         SamplePlayable(sampleVideos[it], sampleThumbs[it])
-    }
+    }.let { it + it + it + it + it }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
