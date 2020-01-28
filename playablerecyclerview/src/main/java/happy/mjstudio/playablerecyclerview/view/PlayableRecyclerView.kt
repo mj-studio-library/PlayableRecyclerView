@@ -126,9 +126,6 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     private var isPageSnapping = false
 
-    private var lastScrolledTimeMs = System.currentTimeMillis()
-
-    private val scrollHandlingEventTriggerDisposable = CompositeDisposable()
     //endregion
 
     init {
@@ -163,18 +160,10 @@ class PlayableRecyclerView @JvmOverloads constructor(
         super.onAttachedToWindow()
         if (!isInEditMode)
             playerPool = (0 until playerPoolCount).map { generatePlayer() }
-
-        Observable.interval(1000L, 100L, TimeUnit.MILLISECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                handleScrollEvent()
-            }.also { scrollHandlingEventTriggerDisposable.add(it) }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-
-        scrollHandlingEventTriggerDisposable.clear()
 
         playerPool.forEach {
             it.release()
@@ -193,13 +182,6 @@ class PlayableRecyclerView @JvmOverloads constructor(
     }
 
     private fun handleScrollEvent() {
-        val curTime = System.currentTimeMillis()
-        val nextDetectionTime = lastScrolledTimeMs + MINIMUM_SCROLL_DETECTION_TIME
-        if (curTime < nextDetectionTime)
-            return
-        else
-            lastScrolledTimeMs = curTime
-
         if (isPauseDuringInvisible) {
             pauseInvisiblePlayers()
         }
@@ -368,8 +350,6 @@ class PlayableRecyclerView @JvmOverloads constructor(
         private val DEFAULT_LOOP_TYPE = LoopType.NONE
         private const val DEFAULT_PAUSE_DURING_INVISIBLE = true
         private const val DEFAULT_SHOW_LOADING = true
-
-        private const val MINIMUM_SCROLL_DETECTION_TIME = 500L
     }
 
 }
