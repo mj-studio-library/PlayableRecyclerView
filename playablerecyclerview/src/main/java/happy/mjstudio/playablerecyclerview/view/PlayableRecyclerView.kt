@@ -121,6 +121,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
     private val screenHeight: Int = resources.displayMetrics.heightPixels
 
     private var isPageSnapping = false
+
+    private var lastScrolledTimeMs = System.currentTimeMillis()
     //endregion
 
     init {
@@ -170,6 +172,13 @@ class PlayableRecyclerView @JvmOverloads constructor(
     private fun observeScrollEvent() {
         addOnScrollListener(object : OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+                val curTime = System.currentTimeMillis()
+                val nextDetectionTime = lastScrolledTimeMs + MINIMUM_SCROLL_DETECTION_TIME
+                if (curTime < nextDetectionTime)
+                    return
+                else
+                    lastScrolledTimeMs = curTime
 
                 if (isPauseDuringInvisible) {
                     pauseInvisiblePlayers()
@@ -341,6 +350,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
         private val DEFAULT_LOOP_TYPE = LoopType.NONE
         private const val DEFAULT_PAUSE_DURING_INVISIBLE = true
         private const val DEFAULT_SHOW_LOADING = true
+
+        private const val MINIMUM_SCROLL_DETECTION_TIME = 500L
     }
 
 }
