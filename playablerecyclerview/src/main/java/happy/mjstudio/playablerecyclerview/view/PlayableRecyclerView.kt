@@ -18,12 +18,8 @@ import happy.mjstudio.playablerecyclerview.manager.PlayableManager
 import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.util.attachSnapHelper
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import java.util.*
 import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.max
 
