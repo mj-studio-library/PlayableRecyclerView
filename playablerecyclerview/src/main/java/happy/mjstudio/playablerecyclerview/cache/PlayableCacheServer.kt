@@ -13,13 +13,7 @@ class PlayableCacheServer private constructor(context: Context) {
         .maxCacheSize(2L * 1024 * 1024 * 1024) // 2GB
         .build()
 
-    init {
-//        proxyServer.registerCacheListener({ file, url, percentAvailable ->
-//            debugE("Cached", "${file.path} $url $percentAvailable")
-//        }, "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
-    }
-
-    fun getCachedUrl(url: String) = proxyServer.getProxyUrl(url, false) ?: url
+    fun getCachedUrl(url: String) = (proxyServer.getProxyUrl(url) ?: url)
 
     companion object {
 
