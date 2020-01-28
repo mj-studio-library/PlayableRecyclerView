@@ -18,8 +18,12 @@ import happy.mjstudio.playablerecyclerview.manager.PlayableManager
 import happy.mjstudio.playablerecyclerview.player.PlayablePlayer
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 import happy.mjstudio.playablerecyclerview.util.attachSnapHelper
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import java.util.*
 import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -123,6 +127,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
     private var isPageSnapping = false
 
     private var lastScrolledTimeMs = System.currentTimeMillis()
+
+    private val scrollHandlingEventTriggerDisposable = CompositeDisposable()
     //endregion
 
     init {
@@ -157,10 +163,19 @@ class PlayableRecyclerView @JvmOverloads constructor(
         super.onAttachedToWindow()
         if (!isInEditMode)
             playerPool = (0 until playerPoolCount).map { generatePlayer() }
+
+        Observable.interval(1000L, 100L, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                handleScrollEvent()
+            }.also { scrollHandlingEventTriggerDisposable.add(it) }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+
+        scrollHandlingEventTriggerDisposable.clear()
+
         playerPool.forEach {
             it.release()
         }
@@ -172,27 +187,30 @@ class PlayableRecyclerView @JvmOverloads constructor(
     private fun observeScrollEvent() {
         addOnScrollListener(object : OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-
-                val curTime = System.currentTimeMillis()
-                val nextDetectionTime = lastScrolledTimeMs + MINIMUM_SCROLL_DETECTION_TIME
-                if (curTime < nextDetectionTime)
-                    return
-                else
-                    lastScrolledTimeMs = curTime
-
-                if (isPauseDuringInvisible) {
-                    pauseInvisiblePlayers()
-                }
-
-                val newCandidatePosition = computeFirstCandidatePosition()
-                if (firstCandidatePosition == newCandidatePosition) return
-                firstCandidatePosition = newCandidatePosition
-
-                if (isAutoPlay) {
-                    playPlayable()
-                }
+                handleScrollEvent()
             }
         })
+    }
+
+    private fun handleScrollEvent() {
+        val curTime = System.currentTimeMillis()
+        val nextDetectionTime = lastScrolledTimeMs + MINIMUM_SCROLL_DETECTION_TIME
+        if (curTime < nextDetectionTime)
+            return
+        else
+            lastScrolledTimeMs = curTime
+
+        if (isPauseDuringInvisible) {
+            pauseInvisiblePlayers()
+        }
+
+        val newCandidatePosition = computeFirstCandidatePosition()
+        if (firstCandidatePosition == newCandidatePosition) return
+        firstCandidatePosition = newCandidatePosition
+
+        if (isAutoPlay) {
+            playPlayable()
+        }
     }
 
     /**
