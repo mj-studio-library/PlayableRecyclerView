@@ -1,5 +1,6 @@
 package happy.mjstudio.playablerecyclerview.player
 
+import android.app.Application
 import android.content.Context
 import androidx.core.net.toUri
 import com.google.android.exoplayer2.Player
@@ -7,6 +8,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import happy.mjstudio.playablerecyclerview.cache.PlayableCacheServer
 import happy.mjstudio.playablerecyclerview.enum.LoopType
 import happy.mjstudio.playablerecyclerview.enum.PlayerState
 import happy.mjstudio.playablerecyclerview.target.PlayableTarget
@@ -15,6 +17,9 @@ import happy.mjstudio.playablerecyclerview.target.PlayableTarget
  * Created by mj on 21, January, 2020
  */
 class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType, private val showLoading: Boolean) : PlayablePlayer {
+
+    /** For Disk Cache */
+    private val cacheServer: PlayableCacheServer = PlayableCacheServer.getInstance(context.applicationContext as Application)
 
     override var latestUsedTimeMs: Long = System.currentTimeMillis()
     override var _state: PlayerState = PlayerState.PAUSED
@@ -83,8 +88,10 @@ class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType, private val 
         player.playWhenReady = false
     }
 
-    @Suppress("ControlFlowWithEmptyBody")
+    @Suppress("ControlFlowWithEmptyBody", "NAME_SHADOWING")
     override fun play(videoUrl: String) {
+        val videoUrl = cacheServer.getCachedUrl(videoUrl)
+
         super.play(videoUrl)
 
         //Resume Track
