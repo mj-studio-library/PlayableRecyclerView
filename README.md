@@ -14,6 +14,8 @@ PlayableRecyclerView
 
 * On/Off default loading
 
+* Automatic Local video cache
+
 * Pause ```Playable``` when ```PlayableTarget``` is completely hidden on the screen.
 
 <image src="https://github.com/mym0404/PlayableRecyclerView/blob/master/Sample.gif" width=300/>
@@ -205,10 +207,12 @@ Limitations
 * Tap to the full-landscape screen is not available now. It will be updated soon.
 * Volume control is not available.
 * Playback information within the same Playable is not saved. It will be updated in beta.
-* Playable downloading locally is not supported now. It will be updated in betta.
 
 Changelog
 ---------
+
+* **1.0-alpha05**
+    * Add video local cache
 
 * **1.0-alpha04**
     * Update Proguard
