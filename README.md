@@ -211,13 +211,7 @@ Limitations
 Changelog
 ---------
 
-* **1.0-alpha05**
-    * Add video local cache
-
-* **1.0-alpha04**
-    * Update Proguard
-
-* **1.0-alpha03**
+* **1.0.0-alpha01**
     * Pre release
 
 License
