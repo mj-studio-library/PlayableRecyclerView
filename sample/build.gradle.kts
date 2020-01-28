@@ -37,8 +37,8 @@ android {
 }
 
 dependencies {
-//    implementation(project(":playablerecyclerview"))
-    implementation("com.github.mym0404:PlayableRecyclerView:1.0-alpha03")
+    implementation(project(":playablerecyclerview"))
+//    implementation("com.github.mym0404:PlayableRecyclerView:1.0.0-alpha01")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
     implementation("io.reactivex.rxjava2:rxjava:2.2.17")
 
@@ -53,7 +53,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.11.0")
     kapt("com.github.bumptech.glide:compiler:4.11.0")
 
-    implementation("com.google.android.material:material:1.2.0-alpha03")
+    implementation("com.google.android.material:material:1.2.0-alpha04")
 
     implementation("de.hdodenhof:circleimageview:3.0.2")
 
