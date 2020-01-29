@@ -74,7 +74,9 @@ Usage
     app:playable_player_concurrent_max="1"
     app:playable_player_pool_count="2"
     app:playable_type="EXOPLAYER"
-    app:playable_show_default_loading="true" />
+    app:playable_show_default_loading="true"
+    app:playable_use_cache="true"
+    app:playable_cache_max_size_mb="1024" />
 ```
 
 #### RecyclerView ViewHolder itemView layout
