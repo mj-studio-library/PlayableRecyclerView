@@ -16,7 +16,8 @@ import happy.mjstudio.playablerecyclerview.target.PlayableTarget
 /**
  * Created by mj on 21, January, 2020
  */
-class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType, private val showLoading: Boolean) : PlayablePlayer {
+class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType, private val showLoading: Boolean, private val useCache: Boolean) :
+    PlayablePlayer {
 
     /** For Disk Cache */
     private val cacheServer: PlayableCacheServer = PlayableCacheServer.getInstance(context.applicationContext as Application)
@@ -90,7 +91,7 @@ class ExoPlayerPlayablePlayer(context: Context, loopType: LoopType, private val 
 
     @Suppress("ControlFlowWithEmptyBody", "NAME_SHADOWING")
     override fun play(videoUrl: String) {
-        val videoUrl = cacheServer.getCachedUrl(videoUrl)
+        val videoUrl = if (useCache) cacheServer.getCachedUrl(videoUrl) else videoUrl
 
         super.play(videoUrl)
 

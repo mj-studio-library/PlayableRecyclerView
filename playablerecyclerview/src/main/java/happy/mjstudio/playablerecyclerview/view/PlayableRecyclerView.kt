@@ -9,6 +9,7 @@ import androidx.core.content.res.use
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import happy.mjstudio.playablerecyclerview.R
+import happy.mjstudio.playablerecyclerview.cache.PlayableCacheServer
 import happy.mjstudio.playablerecyclerview.common.VisibleSize
 import happy.mjstudio.playablerecyclerview.enum.LoopType
 import happy.mjstudio.playablerecyclerview.enum.PlayableType
@@ -98,6 +99,10 @@ class PlayableRecyclerView @JvmOverloads constructor(
 
     private var isShowDefaultLoading = DEFAULT_SHOW_LOADING
 
+    private var isUseCache = DEFAULT_USE_CACHE
+
+    private var maximumCacheSizeMb = DEFAULT_CACHE_MAX_SIZE_MB
+
     /**
      * List of [PlayablePlayer] used for playback in List
      */
@@ -141,7 +146,14 @@ class PlayableRecyclerView @JvmOverloads constructor(
             isPauseDuringInvisible = it.getBoolean(R.styleable.PlayableRecyclerView_playable_pause_during_invisible, DEFAULT_PAUSE_DURING_INVISIBLE)
 
             isShowDefaultLoading = it.getBoolean(R.styleable.PlayableRecyclerView_playable_show_default_loading, DEFAULT_SHOW_LOADING)
+
+            isUseCache = it.getBoolean(R.styleable.PlayableRecyclerView_playable_use_cache, DEFAULT_USE_CACHE)
+
+            maximumCacheSizeMb = it.getInteger(R.styleable.PlayableRecyclerView_playable_cache_max_size_mb, DEFAULT_CACHE_MAX_SIZE_MB)
         }
+
+        /** Pre-Initialization of Cache Server */
+        PlayableCacheServer.getInstance(context.applicationContext as Application, maximumCacheSizeMb)
 
         if (isPageSnapping)
             attachSnapHelper()
@@ -150,7 +162,7 @@ class PlayableRecyclerView @JvmOverloads constructor(
     }
 
     private fun generatePlayer(): PlayablePlayer =
-        playableType.generatePlayer(context.applicationContext as Application, loopType, isShowDefaultLoading)
+        playableType.generatePlayer(context.applicationContext as Application, loopType, isShowDefaultLoading, isUseCache)
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -346,6 +358,8 @@ class PlayableRecyclerView @JvmOverloads constructor(
         private val DEFAULT_LOOP_TYPE = LoopType.NONE
         private const val DEFAULT_PAUSE_DURING_INVISIBLE = true
         private const val DEFAULT_SHOW_LOADING = true
+        private const val DEFAULT_USE_CACHE = true
+        const val DEFAULT_CACHE_MAX_SIZE_MB = 1024 // 1GB
     }
 
 }

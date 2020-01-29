@@ -19,6 +19,9 @@ android {
 }
 
 dependencies {
+//        implementation("com.danikula:videocache:2.7.1")
+    implementation(name:'videocache', ext:'aar')
+
     implementation("androidx.core:core-ktx:1.1.0")
 
     implementation("com.victor:lib:1.0.4")
@@ -29,8 +32,8 @@ dependencies {
     implementation("com.google.android.exoplayer:exoplayer-core:2.11.1")
     implementation("com.google.android.exoplayer:exoplayer-ui:2.11.1")
 
-    implementation("com.danikula:videocache:2.7.1")
-    
+
+
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 }
 

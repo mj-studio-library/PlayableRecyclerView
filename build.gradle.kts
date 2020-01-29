@@ -23,6 +23,10 @@ allprojects {
         jcenter()
         mavenCentral()
         maven { setUrl("https://jitpack.io") }
+        flatDir { dirs = setOf(
+            File("libs"),
+            project(":playablerecyclerview").file("libs")
+        ) }
     }
 }
 
